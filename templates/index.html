@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Analysis Bot</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Data Analysis Bot</h1>
+    <p class="subtitle">Upload a CSV file to analyze, clean, sort, and visualize your data.</p>
+
+    <form method="POST" enctype="multipart/form-data" class="upload-box">
+        <input type="file" name="file" accept=".csv" required>
+
+        <div class="options">
+            <input type="text" name="sort_column" placeholder="Sort column name (optional)">
+
+            <select name="graph_column">
+                <option value="">Auto select graph column</option>
+                {% for col in numeric_columns %}
+                    <option value="{{ col }}">{{ col }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="graph_type">
+                <option value="bar">Bar Chart</option>
+                <option value="line">Line Chart</option>
+                <option value="hist">Histogram</option>
+            </select>
+
+            <label>
+                <input type="checkbox" name="remove_missing" value="yes">
+                Remove missing values
+            </label>
+        </div>
+
+        <button type="submit">Analyze Data</button>
+    </form>
+
+    {% if error %}
+        <div class="error">Error: {{ error }}</div>
+    {% endif %}
+
+    {% if rows %}
+        <div class="card">
+            <h2>Dataset Summary</h2>
+            <p><b>Total Rows:</b> {{ rows }}</p>
+            <p><b>Total Columns:</b> {{ columns }}</p>
+            <p><b>Duplicate Rows:</b> {{ duplicate_count }}</p>
+            <p><b>Column Names:</b> {{ column_names }}</p>
+        </div>
+
+        <div class="card">
+            <h2>Auto Insights</h2>
+            <ul>
+                {% for insight in insights %}
+                    <li>{{ insight }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Missing Values</h2>
+            <p>{{ missing_values }}</p>
+        </div>
+
+        <div class="card">
+            <h2>First 10 Rows</h2>
+            {{ data_preview | safe }}
+        </div>
+
+        <div class="card">
+            <h2>Statistical Summary</h2>
+            {{ stats | safe }}
+        </div>
+
+        {% if graph_path %}
+            <div class="card">
+                <h2>Generated Graph</h2>
+                <img src="/{{ graph_path }}" class="graph">
+            </div>
+        {% endif %}
+
+        {% if download_ready %}
+            <div class="download-box">
+                <a href="/download">Download Cleaned CSV</a>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+</body>
+</html>
